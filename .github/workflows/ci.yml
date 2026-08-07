@@ -28,6 +28,6 @@ jobs:
 
         
       - name: Dependency Scan
-  run: npm audit --audit-level=high
+        run: npm audit --audit-level=high
 
   
