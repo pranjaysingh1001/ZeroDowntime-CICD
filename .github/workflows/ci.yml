@@ -30,4 +30,13 @@ jobs:
       - name: Dependency Scan
         run: npm audit --audit-level=high
 
-  
+      - name: Build Docker Image
+        run: docker build -t zerodowntime-app:latest .
+
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: zerodowntime-app:latest
+          format: table
+          exit-code: 1
+          severity: HIGH,CRITICAL
