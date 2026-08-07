@@ -24,4 +24,4 @@ jobs:
         run: npm install
 
       - name: Verify Application
-        run: node app.js
+        run: node server.js
