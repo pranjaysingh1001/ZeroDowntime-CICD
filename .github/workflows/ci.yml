@@ -23,5 +23,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Verify Application
-        run: node server.js
+      - name: Run Unit Tests
+        run: npm test
