@@ -40,3 +40,19 @@ jobs:
           format: table
           exit-code: 0
           severity: HIGH,CRITICAL
+
+
+      - name: Start Application
+        run: |
+          npm start > app.log 2>&1 &
+          sleep 10
+
+
+      - name: Check Application
+        run: curl --fail http://localhost:3000/health
+
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'http://localhost:3000'
