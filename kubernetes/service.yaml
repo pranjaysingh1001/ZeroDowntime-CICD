@@ -7,9 +7,11 @@ metadata:
 
   namespace: production
 spec:
+  type: ClusterIP
 
   selector:
     app: zerodowntime
+    version: blue
 
   ports:
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zerodowntime-green-test
+spec:
+  type: ClusterIP
+
+  selector:
+    app: zerodowntime
+    version: green
+
+  ports:
+    - port: 80
+      targetPort: 3000

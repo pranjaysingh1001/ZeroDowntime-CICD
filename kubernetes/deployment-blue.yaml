@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zerodowntime-blue
+  labels:
+    app: zerodowntime
+    version: blue
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: zerodowntime
+      version: blue
+
+  strategy:
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        app: zerodowntime
+        version: blue
+
+    spec:
+      containers:
+        - name: zerodowntime-app
+          image: zerodowntime-app:v1
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 3000
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
