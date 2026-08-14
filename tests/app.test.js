@@ -7,7 +7,7 @@ describe("ZeroDowntime Application Tests", () => {
     const response = await request(app).get("/");
 
     expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("Hello Zetheta Project!");
+    expect(response.text).toBe("Hello Zetheta Project! version 2");
   });
 
   test("GET /health should return application health", async () => {
