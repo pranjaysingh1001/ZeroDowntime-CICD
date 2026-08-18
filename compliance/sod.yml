@@ -1,0 +1,25 @@
+standard:
+  name: "Segregation of Duties"
+  version: "1.0"
+
+rules:
+
+  - id: "SOD-001"
+    title: "Developer cannot directly approve production deployment"
+    description: "Production deployment requires an independent approval."
+
+  - id: "SOD-002"
+    title: "Production deployment requires review"
+    description: "Pull requests must be reviewed before production deployment."
+
+  - id: "SOD-003"
+    title: "Security controls cannot be bypassed"
+    description: "Compliance and security gates must execute before deployment."
+
+  - id: "SOD-004"
+    title: "Emergency changes must be auditable"
+    description: "Emergency production changes require documented evidence."
+
+  - id: "SOD-005"
+    title: "Privileged access must be restricted"
+    description: "Production access must follow least privilege."

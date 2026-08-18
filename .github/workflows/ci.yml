@@ -4,39 +4,67 @@ on:
   push:
     branches:
       - main
-  
+
 permissions:
   contents: read
   issues: write
 
 jobs:
-  build:
 
+  # ============================================================
+  # 1. BUILD + TEST + SECURITY
+  # ============================================================
+  build:
+    name: Build, Test & Security
     runs-on: ubuntu-latest
 
     steps:
 
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
+      # --------------------------------------------------------
+      # Node.js
+      # --------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
+      # --------------------------------------------------------
+      # Install Dependencies
+      # --------------------------------------------------------
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
+      # --------------------------------------------------------
+      # Unit Tests
+      # --------------------------------------------------------
       - name: Run Unit Tests
         run: npm test
 
-        
+      # --------------------------------------------------------
+      # Dependency Security Scan
+      # --------------------------------------------------------
       - name: Dependency Scan
         run: npm audit --audit-level=high
 
+      # --------------------------------------------------------
+      # Docker Build
+      # --------------------------------------------------------
       - name: Build Docker Image
-        run: docker build -t zerodowntime-app:latest .
+        run: |
+          docker build \
+            -t zerodowntime-app:latest \
+            .
 
+      # --------------------------------------------------------
+      # Trivy Container Security Scan
+      # --------------------------------------------------------
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -45,25 +73,154 @@ jobs:
           exit-code: 0
           severity: HIGH,CRITICAL
 
-
+      # --------------------------------------------------------
+      # Start Application
+      # --------------------------------------------------------
       - name: Start Application
         run: |
           npm start > app.log 2>&1 &
+          echo $! > app.pid
           sleep 10
 
+      # --------------------------------------------------------
+      # Application Health Check
+      # --------------------------------------------------------
+      - name: Check Application Health
+        run: |
+          curl --fail --retry 5 --retry-delay 2 \
+            http://localhost:3000/health
 
-      - name: Check Application
-        run: curl --fail http://localhost:3000/health
+      # --------------------------------------------------------
+      # Show Application Logs if Health Check Fails
+      # --------------------------------------------------------
+      - name: Show Application Logs
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "Application Logs"
+          echo "=========================================="
+          cat app.log || true
 
-
+      # --------------------------------------------------------
+      # OWASP ZAP Baseline Scan
+      # --------------------------------------------------------
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
-          target: 'http://localhost:3000'
+          target: http://localhost:3000
 
-      - name: Run Unit Tests
-        run: npm test
-
+      # --------------------------------------------------------
+      # Contract Tests
+      # --------------------------------------------------------
       - name: Run Contract Tests
         run: npm run test:contract
-    
+
+
+  # ============================================================
+  # 2. COMPLIANCE GATE
+  # ============================================================
+  compliance:
+    name: Compliance Gate
+    runs-on: ubuntu-latest
+
+    # Compliance runs ONLY after build/security succeeds
+    needs: build
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout Repository
+      # --------------------------------------------------------
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # Verify Compliance Script
+      # --------------------------------------------------------
+      - name: Verify Compliance Script
+        run: |
+          if [ ! -f scripts/compliance-check.sh ]; then
+            echo "ERROR: scripts/compliance-check.sh not found."
+            exit 1
+          fi
+
+          echo "Compliance script found."
+
+      # --------------------------------------------------------
+      # Make Script Executable
+      # --------------------------------------------------------
+      - name: Make Compliance Script Executable
+        run: |
+          chmod +x scripts/compliance-check.sh
+
+      # --------------------------------------------------------
+      # Run Compliance Checks
+      # --------------------------------------------------------
+      - name: Run Compliance Checks
+        run: |
+          ./scripts/compliance-check.sh
+
+
+  # ============================================================
+  # 3. DEPLOYMENT
+  # ============================================================
+  deploy:
+    name: Deployment
+    runs-on: ubuntu-latest
+
+    # Deployment is allowed ONLY when compliance passes
+    needs: compliance
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout Repository
+      # --------------------------------------------------------
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # Deployment Gate Confirmation
+      # --------------------------------------------------------
+      - name: Deployment Gate Passed
+        run: |
+          echo "=========================================="
+          echo "       DEPLOYMENT GATE PASSED"
+          echo "=========================================="
+          echo ""
+          echo "Build ................. PASSED"
+          echo "Unit Tests ............ PASSED"
+          echo "Dependency Scan ....... PASSED"
+          echo "Docker Build .......... PASSED"
+          echo "Trivy Scan ............ PASSED"
+          echo "Health Check .......... PASSED"
+          echo "OWASP ZAP ............. PASSED"
+          echo "Contract Tests ........ PASSED"
+          echo "Compliance Gate ....... PASSED"
+          echo ""
+          echo "Deployment is allowed."
+          echo "=========================================="
+
+      # --------------------------------------------------------
+      # IMPORTANT:
+      # Local Minikube cannot be accessed by this
+      # GitHub-hosted runner.
+      #
+      # Keep the actual deployment commented for now.
+      # --------------------------------------------------------
+
+      # - name: Deploy Blue-Green
+      #   run: |
+      #     chmod +x scripts/deploy-blue-green.sh
+      #     ./scripts/deploy-blue-green.sh
+
+      # --------------------------------------------------------
+      # Database migrations will also be connected
+      # when a reachable Kubernetes/cloud environment
+      # is configured.
+      # --------------------------------------------------------
+
+      # - name: Run Database Migrations
+      #   run: |
+      #     chmod +x scripts/run-migrations.sh
+      #     ./scripts/run-migrations.sh

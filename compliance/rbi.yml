@@ -1,0 +1,40 @@
+standard:
+  name: "RBI IT Governance, Risk, Controls and Assurance Practices"
+  version: "2023"
+
+controls:
+
+  - id: "RBI-CHG"
+    title: "Change and Patch Management"
+    description: "Production changes must be controlled and validated."
+    automated_check: "change_management"
+
+  - id: "RBI-ACC"
+    title: "Access Controls"
+    description: "Access must follow least privilege."
+    automated_check: "access_control"
+
+  - id: "RBI-AUD"
+    title: "Audit Trails"
+    description: "Security and operational events must be auditable."
+    automated_check: "audit_logging"
+
+  - id: "RBI-SEC"
+    title: "Information Security"
+    description: "Security controls must protect information assets."
+    automated_check: "security_scanning"
+
+  - id: "RBI-VAPT"
+    title: "Vulnerability Assessment and Penetration Testing"
+    description: "Applications and infrastructure must undergo security testing."
+    automated_check: "security_testing"
+
+  - id: "RBI-BCP"
+    title: "Business Continuity and Disaster Recovery"
+    description: "Critical systems must support continuity and recovery."
+    automated_check: "dr_controls"
+
+  - id: "RBI-DATA"
+    title: "Data Migration Controls"
+    description: "Data migration must be controlled and validated."
+    automated_check: "database_migration"

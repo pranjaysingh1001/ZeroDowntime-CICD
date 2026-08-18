@@ -1,0 +1,35 @@
+standard:
+  name: "PCI DSS"
+  version: "4.0.1"
+
+controls:
+
+  - id: "PCI-6.2"
+    title: "Secure software development"
+    description: "Software development must follow secure development practices."
+    automated_check: "sast"
+
+  - id: "PCI-6.3"
+    title: "Security vulnerabilities"
+    description: "Security vulnerabilities must be identified and managed."
+    automated_check: "dependency_scan"
+
+  - id: "PCI-6.4"
+    title: "Public-facing application protection"
+    description: "Public-facing applications must be protected against attacks."
+    automated_check: "dast"
+
+  - id: "PCI-8"
+    title: "Access control"
+    description: "Access must follow least privilege."
+    automated_check: "kubernetes_security"
+
+  - id: "PCI-10"
+    title: "Audit logging"
+    description: "Security-relevant activity must be logged and monitored."
+    automated_check: "audit_logging"
+
+  - id: "PCI-12"
+    title: "Security policy and governance"
+    description: "Security responsibilities and policies must be documented."
+    automated_check: "policy_documentation"
