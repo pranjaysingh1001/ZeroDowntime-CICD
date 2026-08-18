@@ -115,10 +115,6 @@ jobs:
       - name: Run Contract Tests
         run: npm run test:contract
 
-      - name: Run Database Migrations
-        run: |
-          chmod +x scripts/run-migrations.sh
-          ./scripts/run-migrations.sh
 
   # ============================================================
   # 2. COMPLIANCE GATE
@@ -223,8 +219,7 @@ jobs:
       # when a reachable Kubernetes/cloud environment
       # is configured.
       # --------------------------------------------------------
-
-             - name: Run Database Migrations
-                run: |
-                  chmod +x scripts/run-migrations.sh
-                  ./scripts/run-migrations.sh
+     # - name: Run Database Migrations
+    #    run: |
+    #     chmod +x scripts/run-migrations.sh
+      #    ./scripts/run-migrations.sh
