@@ -159,8 +159,25 @@ jobs:
       - name: Run Compliance Checks
         run: |
           ./scripts/compliance-check.sh
+      
+      #--------------------------------------------------------
+      - name: Run compliance gate
+        run: |
+          chmod +x scripts/compliance-check.sh
+          ./scripts/compliance-check.sh
 
+      - name: Generate compliance report
+        if: always()
+        run: |
+          chmod +x scripts/generate-compliance-report.sh
+          ./scripts/generate-compliance-report.sh
 
+      - name: Upload compliance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report
+          path: reports/compliance-report.txt
   # ============================================================
   # 3. DEPLOYMENT
   # ============================================================
