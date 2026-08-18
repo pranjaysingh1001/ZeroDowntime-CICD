@@ -28,6 +28,15 @@ spec:
           image: zerodowntime-app:v2
           imagePullPolicy: Never
 
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          
+
           ports:
             - containerPort: 3000
 

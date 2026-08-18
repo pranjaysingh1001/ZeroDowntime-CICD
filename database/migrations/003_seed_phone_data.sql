@@ -1,0 +1,3 @@
+UPDATE users
+SET phone = '9999999999'
+WHERE phone IS NULL;

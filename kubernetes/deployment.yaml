@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: zerodowntime
-        image: zerodowntime-app:latest
+        image: zerodowntime-app:v2
         imagePullPolicy: Never
 
         ports:
