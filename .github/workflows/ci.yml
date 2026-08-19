@@ -67,7 +67,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -t zerodowntime-app:${{ github.sha }} \
+            -t zerodowntime-app:latest \
             .
 
       # --------------------------------------------------------
@@ -76,7 +76,7 @@ jobs:
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: zerodowntime-app:${{ github.sha }}
+          image-ref: zerodowntime-app:latest
           format: table
           exit-code: 0
           severity: HIGH,CRITICAL
