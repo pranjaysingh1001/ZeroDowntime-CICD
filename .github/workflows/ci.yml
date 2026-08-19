@@ -18,7 +18,15 @@ jobs:
     name: Build, Test & Security
     runs-on: ubuntu-latest
 
+    #---------------------------
     steps:
+
+      - name: Record Pipeline Start Time
+        run: |
+          echo "PIPELINE_START=$(date +%s)" >> "$GITHUB_ENV"
+          echo "Pipeline started at: $(date -u)"
+
+
 
       # --------------------------------------------------------
       # Checkout
@@ -59,7 +67,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -t zerodowntime-app:latest \
+            -t zerodowntime-app:${{ github.sha }} \
             .
 
       # --------------------------------------------------------
@@ -68,7 +76,7 @@ jobs:
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: zerodowntime-app:latest
+          image-ref: zerodowntime-app:${{ github.sha }}
           format: table
           exit-code: 0
           severity: HIGH,CRITICAL
@@ -161,11 +169,7 @@ jobs:
           ./scripts/compliance-check.sh
       
       #--------------------------------------------------------
-      - name: Run compliance gate
-        run: |
-          chmod +x scripts/compliance-check.sh
-          ./scripts/compliance-check.sh
-
+      
       - name: Generate compliance report
         if: always()
         run: |
@@ -218,6 +222,18 @@ jobs:
           echo "Deployment is allowed."
           echo "=========================================="
 
+      - name: Record Deployment Validation Time
+        run: |
+          echo "=========================================="
+          echo "       PIPELINE VALIDATION COMPLETE"
+          echo "=========================================="
+          echo "Commit SHA: $GITHUB_SHA"
+          echo "Workflow Run: $GITHUB_RUN_ID"
+          echo "Validation completed at: $(date -u)"
+          echo ""
+          echo "The CI/CD validation pipeline completed."
+          echo "Deployment gate passed."
+          echo "=========================================="
       # --------------------------------------------------------
       # IMPORTANT:
       # Local Minikube cannot be accessed by this
